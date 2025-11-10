@@ -1,0 +1,29 @@
+# Terraform directories and state files
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+crash.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+terraform.rc
+.terraformrc
+
+# Sensitive variable files
+*.tfvars
+*.tfvars.json
+
+# Plan files
+*.tfplan
+
+# macOS
+.DS_Store
+
+# Editors/IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log

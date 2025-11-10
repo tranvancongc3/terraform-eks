@@ -99,6 +99,10 @@ module "eks" {
 
   node_groups = {
     on_demand = {
+      name            = "prj-stock-dev-ng-on-demand"
+      use_name_prefix = false
+      iam_role_use_name_prefix = false
+      iam_role_name            = "eks-ng-od"
       capacity_type  = "ON_DEMAND"
       instance_types = ["t4g.large"]
       ami_type       = "AL2023_ARM_64_STANDARD"
@@ -117,6 +121,10 @@ module "eks" {
     }
 
     spot = {
+      name            = "prj-stock-dev-ng-spot"
+      use_name_prefix = false
+      iam_role_use_name_prefix = false
+      iam_role_name            = "eks-ng-spot"
       capacity_type  = "SPOT"
       instance_types = ["t4g.large"]
       ami_type       = "AL2023_ARM_64_STANDARD"

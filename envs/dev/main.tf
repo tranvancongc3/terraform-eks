@@ -42,16 +42,19 @@ data "aws_availability_zones" "available" {
 
 locals {
   azs = slice(data.aws_availability_zones.available.names, 0, 2)
+  project     = "prj-stock"
+  environment = "dev"
+  name_prefix = "${local.project}-${local.environment}"
   common_tags = {
-    Project     = "prj-stock"
-    Environment = "dev"
+    Project     = local.project
+    Environment = local.environment
   }
 }
 
 module "vpc" {
   source               = "../../modules/vpc"
-  environment          = "dev"
-  name_prefix          = "prj-stock"
+  environment          = local.environment
+  name_prefix          = local.project
   vpc_cidr             = var.vpc_cidr
   azs                  = local.azs
   enable_nat_gateway   = false
@@ -63,8 +66,8 @@ module "vpc" {
 module "eks" {
   source = "../../modules/eks"
 
-  environment        = "dev"
-  name_prefix        = "prj-stock"
+  environment        = local.environment
+  name_prefix        = local.project
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.public_subnets
   cluster_version    = var.cluster_version
@@ -97,15 +100,26 @@ module "eks" {
     }
   }
 
+  # Đặt tên rõ ràng cho Security Groups của EKS
+  security_group_name            = "${local.name_prefix}-cluster-sg"
+  security_group_use_name_prefix = false
+  node_security_group_name            = "${local.name_prefix}-node-sg"
+  node_security_group_use_name_prefix = false
+
   node_groups = {
     on_demand = {
-      name            = "prj-stock-dev-ng-on-demand"
+      name            = "${local.name_prefix}-ng-on-demand"
       use_name_prefix = false
       iam_role_use_name_prefix = false
       iam_role_name            = "eks-ng-od"
+      launch_template_name            = "${local.name_prefix}-lt-on-demand"
+      launch_template_use_name_prefix = false
       capacity_type  = "ON_DEMAND"
       instance_types = ["t4g.large"]
       ami_type       = "AL2023_ARM_64_STANDARD"
+      launch_template_tags = {
+        Name = "${local.name_prefix}-lt-on-demand"
+      }
       subnet_ids     = module.vpc.public_subnets
       min_size       = 1
       desired_size   = 1
@@ -121,13 +135,18 @@ module "eks" {
     }
 
     spot = {
-      name            = "prj-stock-dev-ng-spot"
+      name            = "${local.name_prefix}-ng-spot"
       use_name_prefix = false
       iam_role_use_name_prefix = false
       iam_role_name            = "eks-ng-spot"
+      launch_template_name            = "${local.name_prefix}-lt-spot"
+      launch_template_use_name_prefix = false
       capacity_type  = "SPOT"
       instance_types = ["t4g.large"]
       ami_type       = "AL2023_ARM_64_STANDARD"
+      launch_template_tags = {
+        Name = "${local.name_prefix}-lt-spot"
+      }
       subnet_ids     = module.vpc.public_subnets
       min_size       = 1
       desired_size   = 1
@@ -163,8 +182,8 @@ module "eks" {
 # IRSA role cho Amazon EBS CSI Driver (theo khuyến nghị docs EKS)
 module "ebs_csi_irsa" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-
-  name = "${module.eks.cluster_name}-ebs-csi-driver"
+  name            = "${local.name_prefix}-irsa-ebs-csi"
+  use_name_prefix = false
 
   attach_ebs_csi_policy = true
 
@@ -181,8 +200,8 @@ module "ebs_csi_irsa" {
 # IRSA role for AWS Load Balancer Controller (using terraform-aws-iam submodule)
 module "lb_controller_irsa" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-
-  name = "${module.eks.cluster_name}-aws-lb-controller"
+  name            = "${local.name_prefix}-irsa-aws-lb-controller"
+  use_name_prefix = false
 
   attach_load_balancer_controller_policy = true
 

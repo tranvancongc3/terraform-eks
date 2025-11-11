@@ -69,3 +69,28 @@ variable "addons_timeouts" {
   description = "Create, update, and delete timeout configurations for EKS addons"
   default     = {}
 }
+
+# Security Group naming controls (pass-through to upstream EKS module)
+variable "security_group_name" {
+  type        = string
+  description = "Name to use for the EKS cluster security group"
+  default     = null
+}
+
+variable "security_group_use_name_prefix" {
+  type        = bool
+  description = "Use the security group name as a prefix (true) or exact name (false)"
+  default     = true
+}
+
+variable "node_security_group_name" {
+  type        = string
+  description = "Name to use for the node shared security group"
+  default     = null
+}
+
+variable "node_security_group_use_name_prefix" {
+  type        = bool
+  description = "Use the node security group name as a prefix (true) or exact name (false)"
+  default     = true
+}

@@ -38,5 +38,11 @@ module "eks" {
   endpoint_private_access       = true
   endpoint_public_access_cidrs  = var.public_access_cidrs
 
+  # Security Group naming (pass-through)
+  security_group_name            = var.security_group_name
+  security_group_use_name_prefix = var.security_group_use_name_prefix
+  node_security_group_name            = var.node_security_group_name
+  node_security_group_use_name_prefix = var.node_security_group_use_name_prefix
+
   tags = var.tags
 }

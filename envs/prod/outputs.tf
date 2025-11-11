@@ -38,27 +38,27 @@ output "eks_oidc_provider_arn" {
   description = "OIDC provider ARN created by the EKS module (prod)."
 }
 
-output "rds_writer_endpoint" {
+output "aurora_writer_endpoint" {
   value       = module.aurora.cluster_writer_endpoint
-  description = "Aurora PostgreSQL writer endpoint (prod)."
+  description = "Aurora writer endpoint (prod)."
 }
 
-output "rds_reader_endpoints" {
-  value       = [module.aurora.cluster_reader_endpoint]
-  description = "Aurora PostgreSQL reader endpoint list (prod)."
+output "aurora_reader_endpoint" {
+  value       = module.aurora.cluster_reader_endpoint
+  description = "Aurora reader endpoint (prod)."
 }
 
-output "rds_db_name" {
+output "aurora_db_name" {
   value       = module.aurora.db_name
   description = "Aurora initial DB name (prod)."
 }
 
-output "rds_secret_arn" {
+output "aurora_secret_arn" {
   value       = module.aurora.secret_arn
   description = "Secrets Manager ARN storing the Aurora master password (prod)."
 }
 
-output "rds_secret_name" {
+output "aurora_secret_name" {
   value       = module.aurora.secret_name
   description = "Secrets Manager name storing the Aurora master password (prod)."
 }

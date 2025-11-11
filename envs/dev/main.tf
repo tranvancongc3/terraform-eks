@@ -179,7 +179,7 @@ module "eks" {
   tags = local.common_tags
 }
 
-# IRSA role cho Amazon EBS CSI Driver (theo khuyến nghị docs EKS)
+# IRSA role for Amazon EBS CSI Driver (per EKS docs recommendation)
 module "ebs_csi_irsa" {
   source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
   name            = "${local.name_prefix}-irsa-ebs-csi"

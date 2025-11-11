@@ -221,3 +221,33 @@ module "argocd" {
 
   depends_on = [module.eks]
 }
+
+# ECR repositories for application images
+module "ecr_repos" {
+  source = "../../modules/ecr_repos"
+
+  repositories = [
+    "${local.name_prefix}-kabu-ai-msa-backend"
+  ]
+
+  image_tag_mutability = "MUTABLE"
+  scan_on_push         = false
+  tags                 = local.common_tags
+  retain_count         = 3
+}
+
+# Identity providers: GitHub OIDC and IAM role for Actions to push to ECR
+module "identity_providers" {
+  source = "../../modules/identity_providers"
+
+  name_prefix = local.name_prefix
+  github_org  = "co-pic"
+
+  # Allow all repos under the org on any branch; tighten via subject_claim_patterns if needed
+  subject_claim_patterns = null
+
+  # Scope ECR repositories (empty means all repositories in this account)
+  ecr_repository_arns = module.ecr_repos.repository_arns
+
+  additional_role_policy_arns = []
+}

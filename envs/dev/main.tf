@@ -18,11 +18,11 @@ provider "aws" {}
 data "aws_region" "current" {}
 data "aws_eks_cluster" "this" {
   name = module.eks.cluster_name
-  # Đảm bảo chỉ truy vấn khi cluster đã sẵn sàng
+  # Ensure the query only runs after the cluster is ready
   depends_on = [module.eks]
 }
 
-# Lấy token truy cập EKS để dùng cho Helm provider (v3 schema)
+# Retrieve EKS access token for the Helm provider (v3 schema)
 data "aws_eks_cluster_auth" "this" {
   name       = module.eks.cluster_name
   depends_on = [module.eks]
@@ -100,7 +100,7 @@ module "eks" {
     }
   }
 
-  # Đặt tên rõ ràng cho Security Groups của EKS
+  # Use explicit names for EKS Security Groups
   security_group_name            = "${local.name_prefix}-cluster-sg"
   security_group_use_name_prefix = false
   node_security_group_name            = "${local.name_prefix}-node-sg"
@@ -197,57 +197,27 @@ module "ebs_csi_irsa" {
   tags = local.common_tags
 }
 
-# IRSA role for AWS Load Balancer Controller (using terraform-aws-iam submodule)
-module "lb_controller_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
-  name            = "${local.name_prefix}-irsa-aws-lb-controller"
-  use_name_prefix = false
+module "aws_lb_controller" {
+  source = "../../modules/aws_lb_controller"
 
-  attach_load_balancer_controller_policy = true
+  name_prefix       = local.name_prefix
+  cluster_name      = module.eks.cluster_name
+  oidc_provider_arn = module.eks.oidc_provider_arn
+  vpc_id            = module.vpc.vpc_id
+  region            = data.aws_region.current.id
+  tags              = local.common_tags
 
-  oidc_providers = {
-    this = {
-      provider_arn              = module.eks.oidc_provider_arn
-      namespace_service_accounts = ["kube-system:aws-load-balancer-controller"]
-    }
-  }
-
-  tags = local.common_tags
+  depends_on = [module.eks]
 }
 
-# Install AWS Load Balancer Controller via Helm
-resource "helm_release" "aws_load_balancer_controller" {
-  name       = "aws-load-balancer-controller"
-  repository = "https://aws.github.io/eks-charts"
-  chart      = "aws-load-balancer-controller"
-  namespace  = "kube-system"
+# Install Argo CD via Helm (no domain/ingress, use port-forward)
+module "argocd" {
+  source = "../../modules/argocd"
 
-  # Đảm bảo cài đặt helm chỉ diễn ra sau khi cluster và IRSA sẵn sàng
-  depends_on = [
-    module.eks,
-    module.lb_controller_irsa,
-  ]
+  namespace     = "argocd"
+  release_name  = "argo-cd"
+  # Optional: pass additional values if needed:
+  # values = { installCRDs = true }
 
-  # Tăng độ ổn định khi chạy lặp
-  wait            = true
-  timeout         = 600
-  atomic          = true
-  cleanup_on_fail = true
-  force_update    = true
-
-  # Giá trị chart (sử dụng values YAML để tránh cảnh báo deprecated)
-  values = [
-    yamlencode({
-      region     = data.aws_region.current.name
-      vpcId      = module.vpc.vpc_id
-      clusterName = module.eks.cluster_name
-      serviceAccount = {
-        create = true
-        name   = "aws-load-balancer-controller"
-        annotations = {
-          "eks.amazonaws.com/role-arn" = module.lb_controller_irsa.arn
-        }
-      }
-    })
-  ]
+  depends_on = [module.eks]
 }

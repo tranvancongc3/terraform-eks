@@ -251,3 +251,18 @@ module "identity_providers" {
 
   additional_role_policy_arns = []
 }
+
+# PostgreSQL single instance (dev-only)
+module "postgres_single" {
+  source = "../../modules/postgres_single"
+
+  name_prefix                = local.name_prefix
+  environment                = local.environment
+  vpc_id                     = module.vpc.vpc_id
+  subnet_ids                 = module.vpc.private_subnets
+  allowed_security_group_ids = [module.eks.node_security_group_id]
+
+  username  = "stockdev"
+  db_name   = "stock_dev"
+  tags = local.common_tags
+}

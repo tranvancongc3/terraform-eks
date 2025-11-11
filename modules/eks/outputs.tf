@@ -22,3 +22,13 @@ output "oidc_provider_arn" {
   value       = try(module.eks.oidc_provider_arn, null)
   description = "OIDC provider ARN created by the EKS module (if enabled)."
 }
+
+output "cluster_security_group_id" {
+  value       = module.eks.cluster_security_group_id
+  description = "Cluster security group ID created by the EKS module."
+}
+
+output "node_security_group_id" {
+  value       = module.eks.node_security_group_id
+  description = "Node security group ID for managed node groups."
+}

@@ -96,3 +96,26 @@ data "aws_eks_addon_version" "ebs_csi" {
   kubernetes_version = module.eks.cluster_version
   most_recent        = true
 }
+
+## Aurora PostgreSQL cluster (writer + reader endpoint), Single-AZ instances
+module "aurora" {
+  source = "../../modules/aurora_postgres"
+
+  name_prefix                = "prj-stock"
+  environment                = "prod"
+  vpc_id                     = module.vpc.vpc_id
+  subnet_ids                 = module.vpc.private_subnets
+  allowed_cidr_blocks        = []
+  allowed_security_group_ids = [module.eks.node_security_group_id]
+
+  db_name                    = "kabuai"
+  master_username            = "app"
+  instance_class             = "db.t3.medium"
+  backup_retention_period    = 7
+  deletion_protection        = true
+  apply_immediately          = true
+  skip_final_snapshot        = true
+  replica_count              = 1
+
+  tags = local.common_tags
+}

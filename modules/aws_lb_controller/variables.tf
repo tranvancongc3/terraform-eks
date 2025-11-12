@@ -1,5 +1,5 @@
 variable "name_prefix" {
-  description = "Fixed resource name prefix (e.g., prj-stock-dev)"
+  description = "Fixed resource name prefix (e.g., pic-kabu-dev)"
   type        = string
 }
 

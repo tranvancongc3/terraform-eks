@@ -6,7 +6,7 @@ variable "environment" {
 variable "name_prefix" {
   type        = string
   description = "Project prefix."
-  default     = "prj-stock"
+  default     = "pic-kabu"
 }
 
 variable "vpc_cidr" {

@@ -41,8 +41,8 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  azs = slice(data.aws_availability_zones.available.names, 0, 2)
-  project     = "prj-stock"
+  azs         = slice(data.aws_availability_zones.available.names, 0, 2)
+  project     = "pic-kabu"
   environment = "dev"
   name_prefix = "${local.project}-${local.environment}"
   common_tags = {
@@ -71,7 +71,7 @@ module "eks" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.public_subnets
   cluster_version    = var.cluster_version
-  addons_timeouts    = {
+  addons_timeouts = {
     create = "30m"
     update = "45m"
     delete = "30m"
@@ -92,7 +92,7 @@ module "eks" {
       before_compute = true
     }
     aws-ebs-csi-driver = {
-      most_recent = true
+      most_recent              = true
       service_account_role_arn = module.ebs_csi_irsa.arn
     }
     metrics-server = {
@@ -101,29 +101,29 @@ module "eks" {
   }
 
   # Use explicit names for EKS Security Groups
-  security_group_name            = "${local.name_prefix}-cluster-sg"
-  security_group_use_name_prefix = false
+  security_group_name                 = "${local.name_prefix}-cluster-sg"
+  security_group_use_name_prefix      = false
   node_security_group_name            = "${local.name_prefix}-node-sg"
   node_security_group_use_name_prefix = false
 
   node_groups = {
     on_demand = {
-      name            = "${local.name_prefix}-ng-on-demand"
-      use_name_prefix = false
-      iam_role_use_name_prefix = false
-      iam_role_name            = "eks-ng-od"
+      name                            = "${local.name_prefix}-ng-on-demand"
+      use_name_prefix                 = false
+      iam_role_use_name_prefix        = false
+      iam_role_name                   = "eks-ng-od"
       launch_template_name            = "${local.name_prefix}-lt-on-demand"
       launch_template_use_name_prefix = false
-      capacity_type  = "ON_DEMAND"
-      instance_types = ["t4g.large"]
-      ami_type       = "AL2023_ARM_64_STANDARD"
+      capacity_type                   = "ON_DEMAND"
+      instance_types                  = ["t4g.large"]
+      ami_type                        = "AL2023_ARM_64_STANDARD"
       launch_template_tags = {
         Name = "${local.name_prefix}-lt-on-demand"
       }
-      subnet_ids     = module.vpc.public_subnets
-      min_size       = 1
-      desired_size   = 1
-      max_size       = 3
+      subnet_ids   = module.vpc.public_subnets
+      min_size     = 1
+      desired_size = 1
+      max_size     = 3
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
       }
@@ -135,22 +135,22 @@ module "eks" {
     }
 
     spot = {
-      name            = "${local.name_prefix}-ng-spot"
-      use_name_prefix = false
-      iam_role_use_name_prefix = false
-      iam_role_name            = "eks-ng-spot"
+      name                            = "${local.name_prefix}-ng-spot"
+      use_name_prefix                 = false
+      iam_role_use_name_prefix        = false
+      iam_role_name                   = "eks-ng-spot"
       launch_template_name            = "${local.name_prefix}-lt-spot"
       launch_template_use_name_prefix = false
-      capacity_type  = "SPOT"
-      instance_types = ["t4g.large"]
-      ami_type       = "AL2023_ARM_64_STANDARD"
+      capacity_type                   = "SPOT"
+      instance_types                  = ["t4g.large"]
+      ami_type                        = "AL2023_ARM_64_STANDARD"
       launch_template_tags = {
         Name = "${local.name_prefix}-lt-spot"
       }
-      subnet_ids     = module.vpc.public_subnets
-      min_size       = 1
-      desired_size   = 1
-      max_size       = 4
+      subnet_ids   = module.vpc.public_subnets
+      min_size     = 1
+      desired_size = 1
+      max_size     = 4
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
       }
@@ -167,7 +167,7 @@ module "eks" {
       principal_arn = "arn:aws:iam::539516441248:user/cong.tv@human-brain.ai"
       policy_associations = {
         admin = {
-          policy_arn  = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
+          policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
           access_scope = {
             type = "cluster"
           }
@@ -181,7 +181,7 @@ module "eks" {
 
 # IRSA role for Amazon EBS CSI Driver (per EKS docs recommendation)
 module "ebs_csi_irsa" {
-  source = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
+  source          = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts"
   name            = "${local.name_prefix}-irsa-ebs-csi"
   use_name_prefix = false
 
@@ -214,8 +214,8 @@ module "aws_lb_controller" {
 module "argocd" {
   source = "../../modules/argocd"
 
-  namespace     = "argocd"
-  release_name  = "argo-cd"
+  namespace    = "argocd"
+  release_name = "argo-cd"
   # Optional: pass additional values if needed:
   # values = { installCRDs = true }
 
@@ -262,7 +262,7 @@ module "postgres_single" {
   subnet_ids                 = module.vpc.private_subnets
   allowed_security_group_ids = [module.eks.node_security_group_id]
 
-  username  = "stockdev"
-  db_name   = "stock_dev"
-  tags = local.common_tags
+  username = "kabudev"
+  db_name  = "kabu_dev"
+  tags     = local.common_tags
 }

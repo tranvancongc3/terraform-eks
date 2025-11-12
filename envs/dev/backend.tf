@@ -1,9 +1,9 @@
 terraform {
   backend "s3" {
-    bucket         = "prj-stock-terraform-state"
+    bucket         = "pic-kabu-terraform-state"
     key            = "terraform-eks/dev/terraform.tfstate"
     region         = "ap-northeast-1"
-    dynamodb_table = "prj-stock-terraform-lock"
+    dynamodb_table = "pic-kabu-terraform-lock"
     encrypt        = true
     profile        = "stock"
   }

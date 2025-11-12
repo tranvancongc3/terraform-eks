@@ -15,8 +15,8 @@ data "aws_availability_zones" "available" {
 }
 
 locals {
-  azs = slice(data.aws_availability_zones.available.names, 0, 2)
-  project     = "prj-stock"
+  azs         = slice(data.aws_availability_zones.available.names, 0, 2)
+  project     = "pic-kabu"
   environment = "prod"
   name_prefix = "${local.project}-${local.environment}"
   common_tags = {
@@ -78,17 +78,17 @@ module "eks" {
 
   node_groups = {
     on_demand = {
-      name                      = "${local.name_prefix}-ng-on-demand"
-      use_name_prefix           = false
-      capacity_type             = "ON_DEMAND"
-      instance_types            = ["t4g.large"]
-      ami_type                  = "AL2023_ARM_64_STANDARD"
-      min_size                  = 2
-      desired_size              = 3
-      max_size                  = 5
-      iam_role_use_name_prefix  = false
-      iam_role_name             = "eks-ng-od-${local.environment}"
-      launch_template_name      = "${local.name_prefix}-lt-on-demand"
+      name                     = "${local.name_prefix}-ng-on-demand"
+      use_name_prefix          = false
+      capacity_type            = "ON_DEMAND"
+      instance_types           = ["t4g.large"]
+      ami_type                 = "AL2023_ARM_64_STANDARD"
+      min_size                 = 2
+      desired_size             = 3
+      max_size                 = 5
+      iam_role_use_name_prefix = false
+      iam_role_name            = "eks-ng-od-${local.environment}"
+      launch_template_name     = "${local.name_prefix}-lt-on-demand"
       iam_role_additional_policies = {
         AmazonEBSCSIDriverPolicy = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
       }
@@ -127,14 +127,14 @@ module "aurora" {
   allowed_cidr_blocks        = []
   allowed_security_group_ids = [module.eks.node_security_group_id]
 
-  db_name                    = "kabuai"
-  master_username            = "app"
-  instance_class             = "db.t3.medium"
-  backup_retention_period    = 7
-  deletion_protection        = true
-  apply_immediately          = true
-  skip_final_snapshot        = true
-  replica_count              = 1
+  db_name                 = "kabuai"
+  master_username         = "app"
+  instance_class          = "db.t3.medium"
+  backup_retention_period = 7
+  deletion_protection     = true
+  apply_immediately       = true
+  skip_final_snapshot     = true
+  replica_count           = 1
 
   tags = local.common_tags
 }

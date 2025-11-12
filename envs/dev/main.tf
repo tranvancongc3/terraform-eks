@@ -227,7 +227,8 @@ module "ecr_repos" {
   source = "../../modules/ecr_repos"
 
   repositories = [
-    "${local.name_prefix}-kabu-ai-msa-backend"
+    "${local.name_prefix}-msa-backend-dev-service",
+    "${local.name_prefix}-analysis-agent-fe-dev-service"
   ]
 
   image_tag_mutability = "MUTABLE"

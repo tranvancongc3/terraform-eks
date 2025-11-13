@@ -88,3 +88,15 @@ variable "tags" {
   description = "Common tags to apply to resources."
   default     = {}
 }
+
+variable "parameter_group_family" {
+  type        = string
+  description = "RDS parameter group family for PostgreSQL."
+  default     = "postgres17"
+}
+
+variable "parameter_overrides" {
+  type        = map(string)
+  description = "Map of parameter name to value for the parameter group."
+  default     = {}
+}

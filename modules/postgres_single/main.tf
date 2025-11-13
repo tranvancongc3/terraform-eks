@@ -44,6 +44,22 @@ resource "aws_security_group_rule" "allow_sg_to_rds" {
   description              = "Allow EKS nodes SG to access PostgreSQL"
 }
 
+resource "aws_db_parameter_group" "this" {
+  name   = "${var.name_prefix}-postgres-params"
+  family = var.parameter_group_family
+
+  dynamic "parameter" {
+    for_each = var.parameter_overrides
+    content {
+      name         = parameter.key
+      value        = parameter.value
+      apply_method = "pending-reboot"
+    }
+  }
+
+  tags = merge(var.tags, { Name = "${var.name_prefix}-postgres-params" })
+}
+
 resource "aws_secretsmanager_secret" "db_master_password" {
   name        = "${var.name_prefix}-postgres-credentials"
   description = "PostgreSQL credentials (username/password)"
@@ -79,6 +95,7 @@ resource "aws_db_instance" "primary" {
   deletion_protection       = var.deletion_protection
   apply_immediately         = var.apply_immediately
   skip_final_snapshot       = var.skip_final_snapshot
+  parameter_group_name      = aws_db_parameter_group.this.name
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-postgres"

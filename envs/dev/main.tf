@@ -262,10 +262,29 @@ module "postgres_single" {
   name_prefix                = local.name_prefix
   environment                = local.environment
   vpc_id                     = module.vpc.vpc_id
-  subnet_ids                 = module.vpc.private_subnets
   allowed_security_group_ids = [module.eks.node_security_group_id]
+  subnet_ids                 = module.vpc.private_subnets
+  parameter_group_family     = "postgres17"
+  parameter_overrides        = {
+    "rds.force_ssl"             = "0"
+  }
 
   username = "kabudev"
   db_name  = "kabu_dev"
   tags     = local.common_tags
+}
+
+resource "helm_release" "redis" {
+  name             = "redis"
+  repository       = "https://charts.bitnami.com/bitnami"
+  chart            = "redis"
+  namespace        = "pic-kabu-dev"
+  create_namespace = true
+
+  wait            = true
+  timeout         = 600
+  atomic          = true
+  cleanup_on_fail = true
+
+  depends_on = [module.eks]
 }

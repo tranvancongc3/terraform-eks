@@ -286,5 +286,30 @@ resource "helm_release" "redis" {
   atomic          = true
   cleanup_on_fail = true
 
+  values = [
+    yamlencode({
+      architecture = "standalone"
+      auth = {
+        enabled = false
+      }
+      master = {
+        persistence = {
+          enabled = false
+        }
+      }
+      replica = {
+        persistence = {
+          enabled = false
+        }
+        replicaCount = 0
+      }
+      primary = {
+        persistence = {
+          enabled = false
+        }
+      }
+    })
+  ]
+
   depends_on = [module.eks]
 }

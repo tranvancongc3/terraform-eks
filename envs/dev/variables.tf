@@ -11,3 +11,9 @@ variable "cluster_version" {
   description = "EKS Kubernetes version for dev."
   default     = "1.34"
 }
+
+variable "redis_namespace" {
+  type        = string
+  description = "Namespace to install Redis using Helm."
+  default     = "pic-kabu-dev"
+}

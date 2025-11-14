@@ -19,6 +19,7 @@ module "lb_controller_irsa" {
       namespace_service_accounts = ["${var.namespace}:${var.service_account_name}"]
     }
   }
+  
 
   tags = var.tags
 }
@@ -27,8 +28,11 @@ resource "helm_release" "aws_load_balancer_controller" {
   name             = var.service_account_name
   repository       = "https://aws.github.io/eks-charts"
   chart            = "aws-load-balancer-controller"
+  version          = "1.14.1"
   namespace        = var.namespace
   create_namespace = false
+  wait             = true
+  timeout          = 300
 
   # Use the provided region if set; otherwise use the data source
   values = [yamlencode({

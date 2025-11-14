@@ -89,6 +89,7 @@ module "eks" {
       most_recent = true
     }
     vpc-cni = {
+      addon_version  = "v1.20.4-eksbuild.2"
       before_compute = true
     }
     aws-ebs-csi-driver = {
@@ -229,8 +230,10 @@ module "ecr_repos" {
   source = "../../modules/ecr_repos"
 
   repositories = [
-    "${local.name_prefix}-msa-backend-dev-service",
-    "pic-kabu-analysis-agent-fe-dev-service"
+    "pic-kabu-analysis-agent-fe-dev-service",
+    "pic-kabu-bff-dev-service",
+    "pic-kabu-ta-dev-service",
+    "pic-kabu-ai-graph-dev-service"
   ]
 
   image_tag_mutability = "MUTABLE"
@@ -265,8 +268,8 @@ module "postgres_single" {
   allowed_security_group_ids = [module.eks.node_security_group_id]
   subnet_ids                 = module.vpc.private_subnets
   parameter_group_family     = "postgres17"
-  parameter_overrides        = {
-    "rds.force_ssl"             = "0"
+  parameter_overrides = {
+    "rds.force_ssl" = "0"
   }
 
   username = "kabudev"
@@ -278,6 +281,7 @@ resource "helm_release" "redis" {
   name             = "redis"
   repository       = "https://charts.bitnami.com/bitnami"
   chart            = "redis"
+  version          = "23.2.12"
   namespace        = "pic-kabu-dev"
   create_namespace = true
 

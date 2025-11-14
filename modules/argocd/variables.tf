@@ -21,3 +21,9 @@ variable "values" {
   type        = map(any)
   default     = {}
 }
+
+variable "chart_version" {
+  description = "Argo CD Helm chart version"
+  type        = string
+  default     = "9.1.1"
+}

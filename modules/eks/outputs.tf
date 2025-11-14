@@ -32,3 +32,4 @@ output "node_security_group_id" {
   value       = module.eks.node_security_group_id
   description = "Node security group ID for managed node groups."
 }
+

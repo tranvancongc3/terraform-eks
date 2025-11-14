@@ -94,3 +94,4 @@ variable "node_security_group_use_name_prefix" {
   description = "Use the node security group name as a prefix (true) or exact name (false)"
   default     = true
 }
+
